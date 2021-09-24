@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 if [ `whoami` != root ]; then
     echo Please run this script as root or using sudo
@@ -85,14 +85,14 @@ function downloadResources ()
 
 
 if ! [ -x "$(ls -a | grep resources)" ]; then
-    #mkdir resources
-    #downloadResources
-    #cloneResources
-    #makeRepositories
+    mkdir resources
+    downloadResources
+    cloneResources
+    makeRepositories
     makeNginx
 else
-    #downloadResources
-    #cloneResources
-    #makeRepositories
+    downloadResources
+    cloneResources
+    makeRepositories
     makeNginx
 fi
