@@ -36,10 +36,9 @@ function cloneResources()
 
 function makeRepositories()
 {
-    export RESOURCES=resources;
     declare -a arr=(
-        "$RESOURCES/pcre2-10.37"
-        "$RESOURCES/zlib-1.2.11"
+        "$1/pcre2-10.37"
+        "$1/zlib-1.2.11"
         );
     for i in "${arr[@]}"
     do
@@ -47,15 +46,20 @@ function makeRepositories()
         ./configure
         make
         make install
-        cd "../$RESOURCES/"
+        cd "$1"
     done
 
 }
 
 function makeNginx()
 {
-    cd resources/nginx-1.19.2
-    ./configure --with-http_ssl_module --with-http_geoip_module --prefix=/home/pafo/Documents/nginx-rtpm-stream-server/nginx --with-file-aio --with-http_stub_status_module --add-module=/home/pafo/Documents/nginx-rtpm-stream-server/nginx-rtmp-module --add-module=/home/pafo/Documents/nginx-rtpm-stream-server/nginx-vod-module --with-http_xslt_module --with-http_ssl_module --add-module=/home/pafo/Documents/nginx-rtpm-stream-server/nginx-module-vts --add-module=/home/pafo/Documents/nginx-rtpm-stream-server/incubator-pagespeed-ngx --with-http_xslt_module --with-http_secure_link_module --with-http_realip_module --with-http_gunzip_module --with-ipv6 --with-http_gzip_static_module
+    cd "$1/nginx-1.19.2"
+    ./configure --with-http_ssl_module --with-http_geoip_module --prefix=$1/nginx \
+    --with-file-aio --with-http_stub_status_module --add-module=$1/nginx-rtmp-module \
+    --add-module=$1/nginx-vod-module --with-http_xslt_module --with-http_ssl_module \
+    --add-module=$1/nginx-module-vts --add-module=$1/incubator-pagespeed-ngx \
+    --with-http_xslt_module --with-http_secure_link_module --with-http_realip_module \
+    --with-http_gunzip_module --with-ipv6 --with-http_gzip_static_module
 }
 
 
@@ -84,15 +88,33 @@ function downloadResources ()
 }
 
 
+function setInstallPath()
+{
+    export WORKD=$( pwd );
+}
+
+
+if ! [ -x "$(which g++)" ];
+then
+    apt-cache show "gcc"
+    sudo apt install gcc -y
+fi
+
 if ! [ -x "$(ls -a | grep resources)" ]; then
+    setInstallPath
+    export WORKDIR=$WORKD
+    echo $WORKDIR
     mkdir resources
     downloadResources
     cloneResources
-    makeRepositories
-    makeNginx
+    makeRepositories "$WORKDIR/resources"
+    makeNginx "$WORKDIR/resources"
 else
+    setInstallPath
+    export WORKDIR=$WORKD
     downloadResources
     cloneResources
-    makeRepositories
-    makeNginx
+    makeRepositories "$WORKDIR/resources"
+    makeNginx "$WORKDIR/resources"
 fi
+
